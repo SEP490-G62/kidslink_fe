@@ -12,12 +12,12 @@ Coded by KidsLink Team
 */
 
 import React, { useEffect, useState } from 'react';
-import { 
-  Grid, 
-  Card, 
-  CardContent, 
-  CardActions, 
-  Button, 
+import {
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
   Avatar,
   TextField,
   FormControl,
@@ -29,6 +29,7 @@ import {
   Chip,
   CircularProgress,
   Alert,
+  Snackbar,
   Stack,
   Tooltip,
   Dialog,
@@ -111,6 +112,7 @@ const TeacherProfile = () => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   const [profile, setProfile] = useState({
     teacher: {
       qualification: '',
@@ -150,11 +152,11 @@ const TeacherProfile = () => {
     '& .MuiInputBase-input': editable
       ? { color: 'text.primary' }
       : {
-          color: 'text.primary',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis'
-        },
+        color: 'text.primary',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      },
     '& .MuiInputLabel-root': { color: 'text.secondary', pointerEvents: 'none' },
     '& .MuiInputLabel-root.MuiInputLabel-shrink': {
       zIndex: 1,
@@ -290,22 +292,31 @@ const TeacherProfile = () => {
       errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
     }
     setPasswordErrors(errors);
-    if (Object.keys(errors).length > 0) return;
+    if (Object.keys(errors).length > 0) {
+      setToast({ open: true, message: 'Vui lòng kiểm tra lại thông tin mật khẩu', severity: 'error' });
+      return;
+    }
 
     try {
       setPasswordSaving(true);
       setError('');
-      setSuccess('');
       await TeacherService.changePassword(passwordForm.currentPassword, passwordForm.newPassword);
-      setSuccess('Đổi mật khẩu thành công');
+      setToast({ open: true, message: 'Đổi mật khẩu thành công', severity: 'success' });
       setPasswordDialogOpen(false);
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setPasswordErrors({});
     } catch (err) {
-      setError(err.message || 'Đổi mật khẩu thất bại');
+      const message = err.message || 'Đổi mật khẩu thất bại';
+      setToast({ open: true, message, severity: 'error' });
+      setPasswordErrors(prev => ({ ...prev, currentPassword: message }));
     } finally {
       setPasswordSaving(false);
     }
+  };
+
+  const handleCloseToast = (_, reason) => {
+    if (reason === 'clickaway') return;
+    setToast((prev) => ({ ...prev, open: false }));
   };
 
   const closePasswordDialog = () => {
@@ -319,7 +330,7 @@ const TeacherProfile = () => {
     <DashboardLayout>
       <TeacherNavbar />
       <ArgonBox py={3}>
-        {success && <SuccessMessage message={success} />} 
+        {success && <SuccessMessage message={success} />}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
@@ -372,11 +383,11 @@ const TeacherProfile = () => {
               <CardContent>
                 <Box textAlign="center" mb={3}>
                   <Box sx={{ position: 'relative', width: 120, height: 120, mx: 'auto', mb: 2 }}>
-                    <Avatar 
-                      src={formData.avatar_url} 
-                      sx={{ 
-                        width: 120, 
-                        height: 120, 
+                    <Avatar
+                      src={formData.avatar_url}
+                      sx={{
+                        width: 120,
+                        height: 120,
                         border: '4px solid',
                         borderColor: 'success.main'
                       }}
@@ -419,7 +430,7 @@ const TeacherProfile = () => {
                     )}
                   </Box>
                 </Box>
-                
+
                 {isEditing && (
                   <Box textAlign="center">
                     <input
@@ -466,19 +477,19 @@ const TeacherProfile = () => {
                   </Box>
                 )}
               </CardContent>
-              
+
               <CardActions sx={{ p: 2, flexDirection: 'column', gap: 1 }}>
-                <ArgonButton 
-                  variant="contained" 
-                  color="info" 
+                <ArgonButton
+                  variant="contained"
+                  color="info"
                   fullWidth
                   onClick={() => setIsEditing(!isEditing)}
                 >
                   {isEditing ? 'Hủy chỉnh sửa' : 'Chỉnh sửa hồ sơ'}
                 </ArgonButton>
-                <ArgonButton 
-                  variant="outlined" 
-                  color="warning" 
+                <ArgonButton
+                  variant="outlined"
+                  color="warning"
                   fullWidth
                   onClick={() => setPasswordDialogOpen(true)}
                 >
@@ -496,7 +507,7 @@ const TeacherProfile = () => {
                   Thông tin tài khoản
                 </ArgonTypography>
                 <Divider sx={{ mb: 2 }} />
-                
+
                 <Grid container spacing={3}>
                   {isEditing && (
                     <Grid item xs={12}>
@@ -518,9 +529,9 @@ const TeacherProfile = () => {
                       inputProps={{ title: formData.full_name }}
                     />
                   </Grid>
-                  
-                  
-                  
+
+
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -543,7 +554,7 @@ const TeacherProfile = () => {
                     </ArgonTypography>
                     <Divider sx={{ mb: 2 }} />
                   </Grid>
-                  
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -559,9 +570,9 @@ const TeacherProfile = () => {
                       inputProps={{ title: formData.major }}
                     />
                   </Grid>
-                  
-                  
-                  
+
+
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -579,7 +590,7 @@ const TeacherProfile = () => {
                       inputProps={{ title: String(formData.experience_years || '') }}
                     />
                   </Grid>
-                  
+
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
@@ -596,7 +607,7 @@ const TeacherProfile = () => {
                       inputProps={{ title: formData.qualification }}
                     />
                   </Grid>
-                  
+
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -625,25 +636,25 @@ const TeacherProfile = () => {
                   </Grid>
                 </Grid>
               </CardContent>
-              
+
               {isEditing && (
                 <CardActions sx={{ p: 2, pt: 0, justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
                   <ArgonTypography variant="caption" color="text">
                     Hãy kiểm tra kỹ thông tin trước khi lưu
                   </ArgonTypography>
                   <Box>
-                    <ArgonButton 
-                      variant="contained" 
-                      color="success" 
+                    <ArgonButton
+                      variant="contained"
+                      color="success"
                       onClick={handleSave}
                       sx={{ mr: 1 }}
                       disabled={saving}
                     >
                       {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                     </ArgonButton>
-                    <ArgonButton 
-                      variant="outlined" 
-                      color="error" 
+                    <ArgonButton
+                      variant="outlined"
+                      color="error"
                       onClick={handleCancel}
                     >
                       Hủy
@@ -737,6 +748,27 @@ const TeacherProfile = () => {
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
                     error={Boolean(passwordErrors.currentPassword)}
                     helperText={passwordErrors.currentPassword}
+                    sx={{
+                      flex: 1,
+                      width: '100%',
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '25px',
+                        backgroundColor: 'white',
+                        width: '100%',
+                        '&:hover': {
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        },
+                        '&.Mui-focused': {
+                          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.2)'
+                        }
+                      },
+                      '& .MuiInputBase-input': {
+                        width: '100% !important',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        overflowWrap: 'break-word'
+                      }
+                    }}
                   />
                 </Box>
                 <Box>
@@ -747,6 +779,27 @@ const TeacherProfile = () => {
                     fullWidth
                     type="password"
                     placeholder="Nhập mật khẩu mới"
+                    sx={{
+                      flex: 1,
+                      width: '100%',
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '25px',
+                        backgroundColor: 'white',
+                        width: '100%',
+                        '&:hover': {
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        },
+                        '&.Mui-focused': {
+                          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.2)'
+                        }
+                      },
+                      '& .MuiInputBase-input': {
+                        width: '100% !important',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        overflowWrap: 'break-word'
+                      }
+                    }}
                     value={passwordForm.newPassword}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
                     error={Boolean(passwordErrors.newPassword)}
@@ -761,6 +814,27 @@ const TeacherProfile = () => {
                     fullWidth
                     type="password"
                     placeholder="Nhập lại mật khẩu mới"
+                    sx={{
+                      flex: 1,
+                      width: '100%',
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '25px',
+                        backgroundColor: 'white',
+                        width: '100%',
+                        '&:hover': {
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        },
+                        '&.Mui-focused': {
+                          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.2)'
+                        }
+                      },
+                      '& .MuiInputBase-input': {
+                        width: '100% !important',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        overflowWrap: 'break-word'
+                      }
+                    }}
                     value={passwordForm.confirmPassword}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
                     error={Boolean(passwordErrors.confirmPassword)}
@@ -784,7 +858,7 @@ const TeacherProfile = () => {
             </PasswordSectionCard>
           </Stack>
         </DialogContent>
-        <DialogActions
+      <DialogActions
           sx={{
             px: 3,
             py: 2,
@@ -812,6 +886,16 @@ const TeacherProfile = () => {
           </ArgonButton>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={6000}
+        onClose={handleCloseToast}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseToast} severity={toast.severity} sx={{ width: '100%' }}>
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 };

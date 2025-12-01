@@ -41,6 +41,8 @@ function CreatePostModal({ open, onClose, onPostCreated, onSuccess, post = null,
   const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [scope, setScope] = useState("school");
+  const [classId, setClassId] = useState(null);
 
   // Update state when post changes (for editing)
   React.useEffect(() => {
@@ -49,10 +51,19 @@ function CreatePostModal({ open, onClose, onPostCreated, onSuccess, post = null,
       const postImages = effectivePost.images || [];
       setImages(postImages);
       setImagePreviews(postImages);
+      setScope(effectivePost.scope || (effectivePost.class_id ? "class" : "school"));
+      setClassId(
+        effectivePost.class_id?._id ||
+        effectivePost.class_id?.id ||
+        effectivePost.class_id ||
+        null
+      );
     } else {
       setContent("");
       setImages([]);
       setImagePreviews([]);
+      setScope("school");
+      setClassId(null);
     }
     setError("");
   }, [effectivePost]);
@@ -157,6 +168,8 @@ function CreatePostModal({ open, onClose, onPostCreated, onSuccess, post = null,
     setImages([]);
     setImagePreviews([]);
     setError("");
+    setScope("school");
+    setClassId(null);
     onClose();
   };
 
@@ -206,7 +219,7 @@ function CreatePostModal({ open, onClose, onPostCreated, onSuccess, post = null,
               <ArgonTypography variant="body2" color="text.secondary">
                 {isEditMode 
                   ? "Cập nhật nội dung và hình ảnh của bài viết" 
-                  : "Chia sẻ điều gì đó với cộng đồng"
+                  : "Đăng bài cho trường"
                 }
               </ArgonTypography>
             </ArgonBox>
@@ -242,7 +255,7 @@ function CreatePostModal({ open, onClose, onPostCreated, onSuccess, post = null,
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
           {/* Selected Child Info (only for parent create mode) */}
-          {/* {!isAdmin && !isEditMode && selectedChild && (
+          {!isAdmin && !isEditMode && selectedChild && (
             <ArgonBox mb={2} p={2} sx={{ 
               backgroundColor: 'rgba(94, 114, 228, 0.05)', 
               borderRadius: 2,
@@ -267,7 +280,7 @@ function CreatePostModal({ open, onClose, onPostCreated, onSuccess, post = null,
                 )}
               </ArgonBox>
             </ArgonBox>
-          )} */}
+          )}
 
           {/* Scrollable Content */}
           <ArgonBox 
@@ -302,7 +315,7 @@ function CreatePostModal({ open, onClose, onPostCreated, onSuccess, post = null,
                 rows={8}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder={isEditMode ? "Cập nhật nội dung bài viết..." : "Chia sẻ điều gì đó với cộng đồng..."}
+                placeholder={isEditMode ? "Cập nhật nội dung bài viết..." : "Đăng bài cho trường..."}
                 error={!!error}
                 helperText={error || (isEditMode ? "Chỉnh sửa nội dung bài viết của bạn" : "Viết nội dung bài viết mới")}
                 sx={{ 

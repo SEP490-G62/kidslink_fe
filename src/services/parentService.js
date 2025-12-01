@@ -296,6 +296,29 @@ class ParentService {
   }
 
   /**
+   * Đổi mật khẩu tài khoản phụ huynh
+   * @param {string} currentPassword
+   * @param {string} newPassword
+   * @returns {Promise<Object>}
+   */
+  async changePassword(currentPassword, newPassword) {
+    try {
+      const response = await apiService.put(
+        '/users/change-password',
+        { currentPassword, newPassword },
+        true
+      );
+      return response;
+    } catch (error) {
+      console.error('ParentService.changePassword Error:', error);
+      return {
+        success: false,
+        error: error.message || 'Có lỗi xảy ra khi đổi mật khẩu'
+      };
+    }
+  }
+
+  /**
    * Lấy thông tin chi tiết của học sinh (thông tin cá nhân, sức khỏe, người đón)
    * @param {string} studentId - ID của học sinh
    * @returns {Promise<Object>} - Kết quả API call
@@ -542,6 +565,27 @@ class ParentService {
         success: false,
         error: error.message || 'Có lỗi xảy ra khi lấy danh sách khoản thu',
         data: []
+      };
+    }
+  }
+
+  /**
+   * Lấy số lượng khoản thu chưa thanh toán
+   * @returns {Promise<Object>} - Kết quả API call với unpaid_count
+   */
+  async getUnpaidFeesCount() {
+    try {
+      const response = await apiService.get('/parent/fees/unpaid-count');
+      return {
+        success: true,
+        data: response.data || { unpaid_count: 0 }
+      };
+    } catch (error) {
+      console.error('ParentService.getUnpaidFeesCount Error:', error);
+      return {
+        success: false,
+        error: error.message || 'Có lỗi xảy ra khi lấy số lượng khoản thu chưa thanh toán',
+        data: { unpaid_count: 0 }
       };
     }
   }

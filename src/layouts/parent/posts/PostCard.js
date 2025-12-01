@@ -46,11 +46,13 @@ function PostCard({
   const [anchorEl, setAnchorEl] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isPending = post.status === 'pending';
 
   // Check if current user owns this post
   const isOwnPost = currentUserId && post.authorId && post.authorId === currentUserId;
 
   const handleLike = async () => {
+    if (isPending) return;
     try {
       const response = await parentService.toggleLike(post.id);
       if (response.success) {
@@ -359,7 +361,6 @@ function PostCard({
   };
 
   // Kiểm tra trạng thái post
-  const isPending = post.status === 'pending';
   const isApproved = post.status === 'approved';
 
   return (
@@ -436,29 +437,6 @@ function PostCard({
                     }}
                   />
                 )}
-                {isApproved && post.authorId === currentUserId && (
-                  <Chip
-                    icon={<i className="ni ni-check-bold" style={{ fontSize: '12px' }} />}
-                    label="Đã duyệt"
-                    size="small"
-                    sx={{
-                      height: 22,
-                      fontSize: '10px',
-                      fontWeight: 'bold',
-                      backgroundColor: 'rgba(76, 175, 80, 0.15)',
-                      color: '#388e3c',
-                      border: '1px solid rgba(76, 175, 80, 0.4)',
-                      '& .MuiChip-icon': {
-                        color: '#388e3c',
-                        marginLeft: '6px'
-                      },
-                      '& .MuiChip-label': {
-                        paddingLeft: '4px',
-                        paddingRight: '8px'
-                      }
-                    }}
-                  />
-                )}
               </ArgonBox>
               <ArgonBox display="flex" alignItems="center" gap={1} flexWrap="wrap">
                 <ArgonTypography 
@@ -473,7 +451,7 @@ function PostCard({
             </ArgonBox>
           </ArgonBox>
           {/* Action menu với bánh răng */}
-          {(isOwnPost || onApprovePost || onDeletePost) && (
+          {(isOwnPost || onApprovePost) && (
             <>
               <IconButton
                 onClick={handleMenuOpen}
@@ -554,7 +532,7 @@ function PostCard({
                     </MenuItem>
                   </>
                 )}
-                {onDeletePost && (
+                {isOwnPost && onDeletePost && (
                   <>
                     {onEditPost && <Divider sx={{ my: 0.5 }} />}
                     <MenuItem 
@@ -628,6 +606,7 @@ function PostCard({
             <Button
               startIcon={<i className="ni ni-like-2" />}
               onClick={handleLike}
+              disabled={isPending}
               sx={{
                 color: isLiked ? '#1976d2' : '#6c757d',
                 textTransform: 'none',
@@ -636,6 +615,8 @@ function PostCard({
                 px: { xs: 1.5, sm: 2 },
                 py: 1,
                 fontSize: { xs: '12px', sm: '14px' },
+                cursor: isPending ? 'not-allowed' : 'pointer',
+                opacity: isPending ? 0.6 : 1,
                 '&:hover': {
                   backgroundColor: isLiked ? 'rgba(25, 118, 210, 0.08)' : 'rgba(108, 117, 125, 0.08)',
                   transform: 'scale(1.05)'
@@ -670,6 +651,7 @@ function PostCard({
           <Button
             startIcon={<i className="ni ni-chat-round" />}
             onClick={() => onComment(post.id)}
+            title={isPending ? "Bài viết đang chờ duyệt - chỉ xem bình luận" : "Bình luận về bài viết"}
             sx={{
               color: '#6c757d',
               textTransform: 'none',
@@ -678,6 +660,8 @@ function PostCard({
               px: { xs: 1.5, sm: 2 },
               py: 1,
               fontSize: { xs: '12px', sm: '14px' },
+              cursor: 'pointer',
+              opacity: isPending ? 0.85 : 1,
               '&:hover': {
                 backgroundColor: 'rgba(108, 117, 125, 0.08)',
                 transform: 'scale(1.05)'

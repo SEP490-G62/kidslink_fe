@@ -99,7 +99,8 @@ function CommentItem({
     
     try {
       setReplyLoading(true);
-      const response = await parentService.createComment(
+      const service = isAdmin ? schoolAdminService : parentService;
+      const response = await service.createComment(
         postId,
         replyText,
         parentCommentId
