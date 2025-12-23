@@ -262,14 +262,12 @@ export default function NutritionDishList() {
 
               <TableContainer sx={{ border: "1px solid #e0e0e0", borderRadius: 2 }}>
                 <Table>
-                  <TableHead>
                     <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
                       <TableCell sx={{ fontWeight: 700 }}>Tên món</TableCell>
                       <TableCell sx={{ fontWeight: 700 }}>Mô tả</TableCell>
                       <TableCell sx={{ fontWeight: 700 }}>Bữa ăn</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 700 }}>Hành động</TableCell>
                       </TableRow>
-                  </TableHead>
                     <TableBody>
                       {filteredDishes.length === 0 ? (
                         <TableRow>

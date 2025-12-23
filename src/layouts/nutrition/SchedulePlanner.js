@@ -869,14 +869,12 @@ export default function SchedulePlanner() {
                 ) : (
                   <TableContainer sx={{ border: '1px solid #e0e0e0', borderRadius: 2 }}>
                     <Table size="small">
-                      <TableHead>
                         <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
                           <TableCell sx={{ fontWeight: 700 }}>Họ tên</TableCell>
                           <TableCell sx={{ fontWeight: 700 }}>Ngày sinh</TableCell>
                           <TableCell sx={{ fontWeight: 700 }}>Giới tính</TableCell>
                           <TableCell sx={{ fontWeight: 700 }}>Dị ứng</TableCell>
                         </TableRow>
-                      </TableHead>
                       <TableBody>
                         {students.length === 0 ? (
                           <TableRow>
