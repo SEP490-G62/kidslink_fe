@@ -1009,14 +1009,12 @@ function FeeAndPayment() {
                   {selectedFees.length > 0 ? (
                     <TableContainer component={Paper} sx={{ maxHeight: 300, mb: 2 }}>
                       <Table stickyHeader size="small">
-                        <TableHead>
                           <TableRow>
                             <TableCell>Học sinh</TableCell>
                             <TableCell>Tên học phí</TableCell>
                             <TableCell>Số tiền</TableCell>
                             <TableCell>Hạn thanh toán</TableCell>
                           </TableRow>
-                        </TableHead>
                         <TableBody>
                           {selectedFees.map((fee, index) => (
                             <TableRow key={fee.feeKey || index}>
@@ -1231,13 +1229,11 @@ function FeeAndPayment() {
                         </ArgonTypography>
                         <TableContainer component={Paper}>
                           <Table size="small">
-                            <TableHead>
                               <TableRow>
                                 <TableCell>Học sinh</TableCell>
                                 <TableCell>Tên học phí</TableCell>
                                 <TableCell align="right">Số tiền</TableCell>
                               </TableRow>
-                            </TableHead>
                             <TableBody>
                               {paymentResult.items.map((item) => (
                                 <TableRow key={item.invoice_id}>
